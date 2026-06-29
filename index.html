@@ -1,0 +1,166 @@
+---
+layout: none
+title: Startpagina
+lang: nl
+---
+
+<!DOCTYPE html>
+<html lang="{{ page.lang | default: 'nl' }}">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ page.title | default: "Startpagina" }}</title>
+
+  <style>
+    :root {
+      --background-color: #121212;
+      --text-color: #e0e0e0;
+      --container-bg: #1e1e1e;
+      --link-color: #ff8c00;
+      --link-hover-color: #995400;
+      --border-color: #333;
+      --search-bg: #2c2c2c;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    #search-bar {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 2rem;
+      background-color: var(--search-bg);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    #search-bar:focus {
+      border-color: var(--link-color);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+
+    .column {
+      background-color: var(--container-bg);
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .column h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      border-bottom: 2px solid var(--link-color);
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .column ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .column li {
+      margin-bottom: 0.75rem;
+    }
+
+    .column a {
+      color: var(--link-color);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .column a:hover {
+      color: var(--link-hover-color);
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <input type="text" id="search-bar" placeholder="Zoek lokaal of druk op Enter voor Google...">
+
+    <div class="grid">
+      {% for group in site.data.links %}
+        <div class="column">
+          <h2>{{ group[0] | capitalize }}</h2>
+          <ul>
+            {% for item in group[1] %}
+              <li>
+                <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name }}</a>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchBar = document.getElementById('search-bar');
+      const columns = document.querySelectorAll('.column');
+
+      // Functie voor lokaal filteren
+      searchBar.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+
+        columns.forEach(column => {
+          const links = column.querySelectorAll('li');
+          let columnHasVisibleLinks = false;
+
+          links.forEach(li => {
+            const link = li.querySelector('a');
+            const title = link.textContent.toLowerCase();
+            const url = (link.href || '').toLowerCase();
+
+            if (title.includes(searchTerm) || url.includes(searchTerm)) {
+              li.style.display = '';
+              columnHasVisibleLinks = true;
+            } else {
+              li.style.display = 'none';
+            }
+          });
+
+          // Verberg de hele kolom als er geen overeenkomende links zijn
+          column.style.display = columnHasVisibleLinks ? '' : 'none';
+        });
+      });
+
+      // Functie voor Google-zoekopdracht bij 'Enter'
+      searchBar.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const searchTerm = e.target.value;
+          if (searchTerm) {
+            window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`;
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
