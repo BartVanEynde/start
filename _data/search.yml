@@ -14,6 +14,5 @@
   default: false
   template: "https://www.reddit.com/search/?q={query}"
 
-- tag: default
-  default: true
+- default: true
   template: "https://www.google.com/search?q={query}"
