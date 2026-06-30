@@ -5,19 +5,19 @@ lang: nl
 ---
 
 <!DOCTYPE html>
-<html lang="{{ page.lang | default: 'nl' }}">
+<html lang="nl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ page.title | default: "Startpagina" }}</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Startpagina</title>
 
   <style>
     :root {
       --background-color: #121212;
       --text-color: #e0e0e0;
       --container-bg: #1e1e1e;
-      --link-color: #ff8c00;
-      --link-hover-color: #995400;
+      --link-color: #bb86fc;
+      --link-hover-color: #9f63f7;
       --border-color: #333;
       --search-bg: #2c2c2c;
     }
@@ -54,7 +54,7 @@ lang: nl
       transition: border-color 0.3s;
     }
 
-    #search-bar:focus {
+    #search-bar.has-text:focus {
       border-color: var(--link-color);
     }
 
@@ -96,22 +96,27 @@ lang: nl
 
     .column a:hover {
       color: var(--link-hover-color);
-      text-decoration: none;
+      text-decoration: underline;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <input type="text" id="search-bar" placeholder="Zoek lokaal of druk op Enter voor Google...">
+    <input
+      type="text"
+      id="search-bar"
+      placeholder="Zoek lokaal of gebruik /w, /img, /map, /r ..."
+    />
 
     <div class="grid">
-      {% for group in site.data.links %}
+      {% for col in site.data.links %}
         <div class="column">
-          <h2>{{ group[0] | capitalize }}</h2>
+          <h2>{{ col[0] }}</h2>
           <ul>
-            {% for item in group[1] %}
+            {% for item in col[1] %}
               <li>
-                <a href="{{ item.url }}" target="_blank" rel="noopener noreferrer">{{ item.name }}</a>
+                <a href="{{ item.url }}" rel="noopener" target="_blank">{{ item.title }}</a>
               </li>
             {% endfor %}
           </ul>
@@ -125,9 +130,14 @@ lang: nl
       const searchBar = document.getElementById('search-bar');
       const columns = document.querySelectorAll('.column');
 
-      // Functie voor lokaal filteren
+      searchBar.focus();
+
+      // Highlight + local filtering
       searchBar.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
+
+        if (e.target.value !== "") searchBar.classList.add('has-text');
+        else searchBar.classList.remove('has-text');
 
         columns.forEach(column => {
           const links = column.querySelectorAll('li');
@@ -136,7 +146,7 @@ lang: nl
           links.forEach(li => {
             const link = li.querySelector('a');
             const title = link.textContent.toLowerCase();
-            const url = (link.href || '').toLowerCase();
+            const url = link.href.toLowerCase();
 
             if (title.includes(searchTerm) || url.includes(searchTerm)) {
               li.style.display = '';
@@ -146,21 +156,59 @@ lang: nl
             }
           });
 
-          // Verberg de hele kolom als er geen overeenkomende links zijn
           column.style.display = columnHasVisibleLinks ? '' : 'none';
         });
       });
 
-      // Functie voor Google-zoekopdracht bij 'Enter'
-      searchBar.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          const searchTerm = e.target.value;
-          if (searchTerm) {
-            window.location.href = `https://www.google.com/search?q=${encodeURIComponent(searchTerm)}`;
-          }
+      // Build search URL from site.data.search.yml
+      const SEARCH_RULES = [
+        {% for rule in site.data.search %}
+        {
+          {% if rule[1].tag %} tag: {{ rule[1].tag | jsonify }}, {% endif %}
+          {% if rule[1].default == true %} default: true, {% else %} default: false, {% endif %}
+          template: {{ rule[1].template | jsonify }}
+        }{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      ];
+
+      const findRule = (tag) => {
+        if (!tag) return SEARCH_RULES.find(r => r.default) || SEARCH_RULES[0];
+        return SEARCH_RULES.find(r => r.tag === tag) || (SEARCH_RULES.find(r => r.default) || SEARCH_RULES[0]);
+      };
+
+      const buildUrl = (rawValue) => {
+        const value = rawValue.trim();
+        if (!value) return '';
+
+        // Expected format: "/tag query"
+        // Examples: "/w foo", "/img cats", "/map antwerpen"
+        if (value.startsWith('/')) {
+          const spaceIndex = value.indexOf(' ');
+          const tag = (spaceIndex === -1 ? value : value.slice(0, spaceIndex)).toLowerCase();
+          const query = (spaceIndex === -1 ? '' : value.slice(spaceIndex + 1)).trim();
+
+          const rule = findRule(tag);
+          if (!rule) return '';
+
+          const q = encodeURIComponent(query);
+          return rule.template.replace('{query}', q);
         }
+
+        // Default rule (no tag)
+        const rule = findRule(null);
+        const q = encodeURIComponent(value);
+        return rule.template.replace('{query}', q);
+      };
+
+      // Enter => redirect
+      searchBar.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+
+        const url = buildUrl(e.target.value);
+        if (url) window.location.href = url;
       });
     });
   </script>
 </body>
 </html>
+
