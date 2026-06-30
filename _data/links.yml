@@ -1,45 +1,45 @@
-media:
-  - name: YouTube
+Media:
+  - title: YouTube
     url: https://www.youtube.com
-  - name: Netflix
+  - title: Netflix
     url: https://www.netflix.com
-  - name: Spotify
+  - title: Spotify
     url: https://www.spotify.com
-  - name: Twitch
+  - title: Twitch
     url: https://www.twitch.tv
 
-nieuws:
-  - name: VRT NWS
+Nieuws:
+  - title: VRT NWS
     url: https://www.vrt.be/vrtnws
-  - name: HLN
+  - title: HLN
     url: https://www.hln.be
-  - name: De Standaard
+  - title: De Standaard
     url: https://www.standaard.be
-  - name: Tweakers
+  - title: Tweakers
     url: https://tweakers.net
 
-sociaal:
-  - name: Reddit
+Sociaal:
+  - title: Reddit
     url: https://www.reddit.com
-  - name: Twitter
+  - title: Twitter
     url: https://www.twitter.com
-  - name: Instagram
+  - title: Instagram
     url: https://www.instagram.com
 
-dev:
-  - name: GitHub
+Dev:
+  - title: GitHub
     url: https://www.github.com
-  - name: Stack Overflow
+  - title: Stack Overflow
     url: https://stackoverflow.com
-  - name: MDN Web Docs
+  - title: MDN Web Docs
     url: https://developer.mozilla.org
-  - name: W3Schools
+  - title: W3Schools
     url: https://www.w3schools.com
 
-tools:
-  - name: Gmail
+Tools:
+  - title: Gmail
     url: https://mail.google.com
-  - name: Google Calendar
+  - title: Google Calendar
     url: https://calendar.google.com
-  - name: Google Translate
+  - title: Google Translate
     url: https://translate.google.com
